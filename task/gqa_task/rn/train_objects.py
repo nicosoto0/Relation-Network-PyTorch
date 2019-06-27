@@ -39,7 +39,7 @@ def get_size(dataset_questions_path):
     
 
 def get_batch(questions_path, features_path, batch_size, device, isObjectFeatures, categoryBatch=False):
-    OBJECT_TRIM = 42
+    OBJECT_TRIM = 24
     
     questions = load_dict(questions_path)
     questions_ids = questions.keys()

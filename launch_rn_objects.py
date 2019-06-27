@@ -96,7 +96,7 @@ answers_dictionary_path = "./data/miniGQA/answers_dictionary.json"
 
 execution_state_path = "./saved_models/last_execution_state.json"
 MAX_QUESTION_LENGTH = 136
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 isObjectFeatures = True
 
 # torch.set_default_tensor_type(torch.FloatTensor)
