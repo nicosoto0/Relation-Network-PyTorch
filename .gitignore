@@ -3,6 +3,8 @@ CLEVR/
 saved_models/
 plots/
 results/
+images/
+real_objects/
 
 __pycache__/
 .idea/
