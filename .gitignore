@@ -29,3 +29,4 @@ venv.bak/
 */GQA_objects_features
 */output
 */miniGQA
+data/scene_graph/
