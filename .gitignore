@@ -6,6 +6,7 @@ results/
 images/
 real_objects/
 
+
 __pycache__/
 .idea/
 
@@ -21,9 +22,10 @@ ENV/
 env.bak/
 venv.bak/
 
-./data
+*/data
 */image_features
 */images
 */object_features
+*/GQA_objects_features
 */output
 */miniGQA
