@@ -1,3 +1,6 @@
+"""
+Permite visualizar las bounding boxes que predice Faster R-CNN, las sacamos del dataset.
+"""
 import json
 import h5py
 from skimage import io
@@ -30,13 +33,14 @@ def convert_points_to_box(points, color, alpha):
     return Rectangle(lower_left_point, width, height, ec=(*color, 1),
                      fc=(*color, alpha)), text_pos
 
+
 if __name__ == "__main__":
     images_path = "./images"
     features_filepath = "./object_features"
     gqa_object_info_path = "./object_features/gqa_objects_info.json"
     id_images_in_miniGQA_path = "./id_images_in_miniGQA.json"
     MAX_OBJECTS = 5
-    
+
     with open(id_images_in_miniGQA_path, "r") as f:
         id_images_in_miniGQA = json.load(f)
 
@@ -61,11 +65,10 @@ if __name__ == "__main__":
             box, text_pos = convert_points_to_box(
                 bbox, color, .4)
             ax1.text(text_pos[0], text_pos[1],
-                    f"obj {idx+1}", bbox=dict(facecolor=color, alpha=0.5))
+                     f"obj {idx+1}", bbox=dict(facecolor=color, alpha=0.5))
             ax1.add_patch(box)
         ax2 = plt.subplot(122)
         ax2.title.set_text(f'Original image')
         ax2.set_axis_off()
         io.imshow(image)
         plt.show()
-
