@@ -37,9 +37,11 @@ def get_size(dataset_questions_path):
         size = len(miniGQA.keys())
     return size
     
-
-def get_batch(questions_path, features_path, batch_size, device, isObjectFeatures, categoryBatch=False):
-    OBJECT_TRIM = 24
+def get_batch(questions_path, features_path, batch_size,device,
+              isObjectFeatures, categoryBatch=False, OBJECT_TRIM=24):
+    
+    if OBJECT_TRIM == "default":
+        OBJECT_TRIM = 24
     
     questions = load_dict(questions_path)
     questions_ids = questions.keys()
@@ -130,7 +132,7 @@ def signalHandler(sig, func=None):
 
 def train(train_questions_path, validation_questions_path, features_path, BATCH_SIZE, epochs,
           lstm, rn, criterion, optimizer, no_save, questions_dictionary, answers_dictionary, device,
-          MAX_QUESTION_LENGTH, isObjectFeatures, print_every=1):
+          MAX_QUESTION_LENGTH, isObjectFeatures, print_every=1, OBJECT_TRIM="default"):
     global DATASET_VALIDATION_SIZE
     global lstm_model
     global rn_model
@@ -157,7 +159,8 @@ def train(train_questions_path, validation_questions_path, features_path, BATCH_
 
         dataset_size_remain = DATASET_TRAIN_SIZE
         
-        batch = get_batch(train_questions_path, features_path,  BATCH_SIZE, device, isObjectFeatures)
+        batch = get_batch(train_questions_path, features_path,  BATCH_SIZE,
+                          device, isObjectFeatures, OBJECT_TRIM=OBJECT_TRIM)
         while dataset_size_remain > 0:
             
             if dataset_size_remain < BATCH_SIZE:
@@ -221,7 +224,9 @@ def train(train_questions_path, validation_questions_path, features_path, BATCH_
         avg_train_losses.append(sum(train_losses)/len(train_losses))
         avg_train_accuracies.append(sum(train_accuracies)/len(train_accuracies))
 
-        val_loss, val_accuracy = validation(validation_questions_path, features_path, BATCH_SIZE, lstm, rn, criterion, questions_dictionary, answers_dictionary, device, MAX_QUESTION_LENGTH, isObjectFeatures)
+        val_loss, val_accuracy = validation(validation_questions_path, features_path, BATCH_SIZE, lstm, rn,
+                                            criterion, questions_dictionary, answers_dictionary, device,
+                                            MAX_QUESTION_LENGTH, isObjectFeatures, OBJECT_TRIM)
         val_accuracies.append(val_accuracy)
         val_losses.append(val_loss)
         
@@ -236,7 +241,6 @@ def train(train_questions_path, validation_questions_path, features_path, BATCH_
             save_training_state(avg_train_losses, avg_train_accuracies,
                                 val_losses, val_accuracies, f"./saved_models/epoch_{i+1}_execution_state.json")
             
-
         print("Train loss: ", avg_train_losses[-1], ". Validation loss: ", val_losses[-1])
         print("Train accuracy: ", avg_train_accuracies[-1], ". Validation accuracy: ", val_accuracies[-1])
         train_losses = []
@@ -244,7 +248,9 @@ def train(train_questions_path, validation_questions_path, features_path, BATCH_
 
     return avg_train_losses, avg_train_accuracies, val_losses[1:], val_accuracies
 
-def test(dataset_questions_path, features_path, BATCH_SIZE, lstm, rn, criterion, questions_dictionary, answers_dictionary, device, MAX_QUESTION_LENGTH, isObjectFeatures):
+def test(dataset_questions_path, features_path, BATCH_SIZE,
+         lstm, rn, criterion, questions_dictionary, answers_dictionary, device,
+         MAX_QUESTION_LENGTH, isObjectFeatures, OBJECT_TRIM="default"):
 
     val_loss = 0.
     val_accuracy = 0.
@@ -257,7 +263,8 @@ def test(dataset_questions_path, features_path, BATCH_SIZE, lstm, rn, criterion,
         dataset_size_remain = get_size(dataset_questions_path)
 
         print("Testing")
-        batch = get_batch(dataset_questions_path, features_path, BATCH_SIZE, device, isObjectFeatures, categoryBatch=True)
+        batch = get_batch(dataset_questions_path, features_path, BATCH_SIZE,
+                          device, isObjectFeatures, categoryBatch=True, OBJECT_TRIM=OBJECT_TRIM)
 
         groups = {}
         groups_acc = []
@@ -394,7 +401,9 @@ def write_csv(data, filename):
         fileData = [header] + data
         writer.writerows(fileData)
 
-def validation(dataset_questions_path, features_path, BATCH_SIZE, lstm, rn, criterion, questions_dictionary, answers_dictionary, device, MAX_QUESTION_LENGTH, isObjectFeatures, test_mode=True):
+def validation(dataset_questions_path, features_path, BATCH_SIZE,
+               lstm, rn, criterion, questions_dictionary, answers_dictionary,
+               device, MAX_QUESTION_LENGTH, isObjectFeatures, OBJECT_TRIM="default"):
 
     val_loss = 0.
     val_accuracy = 0.
@@ -408,7 +417,7 @@ def validation(dataset_questions_path, features_path, BATCH_SIZE, lstm, rn, crit
 
         print("Validation")
         batch = get_batch(dataset_questions_path, features_path,
-                            BATCH_SIZE, device, isObjectFeatures)
+                            BATCH_SIZE, device, isObjectFeatures, OBJECT_TRIM=OBJECT_TRIM)
 
         #pbar = tqdm(total=num_batch)
         batch_number = 0
