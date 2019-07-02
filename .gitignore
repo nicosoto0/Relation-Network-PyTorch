@@ -22,6 +22,8 @@ ENV/
 env.bak/
 venv.bak/
 
+/data
+
 */data
 */image_features
 */images
