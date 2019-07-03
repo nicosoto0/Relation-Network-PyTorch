@@ -121,6 +121,7 @@ else:
     questions_dictionary = load_dict(questions_dictionary_path)
     answers_dictionary = load_dict(answers_dictionary_path)
 questions_dict_size = len(questions_dictionary)
+answers_dict_size = len(answers_dictionary)
 print(f"Questions dictionary size: {questions_dict_size}")
 print(f"Answers dictionary size: {len(answers_dictionary)}")
 

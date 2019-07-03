@@ -482,8 +482,9 @@ def validation(dataset_questions_path, features_path, BATCH_SIZE,
 
                 print(f"Was correct (really): {ans==gt_string}")
                 print(
-                    f"Was correct (code): {bool(answers_list[idx])}")
-                print(f"Contradiction: {bool(answers_list[idx])!=(ans==gt_string)}")
+                    f"Was correct (code): {bool(answers_list[idx])==(ans==gt_string)}")
+                    print(
+                    f"Was correct (code): {bool(answers_list[idx])==(ans==gt_string)}")
             
             batch_number += 1
             print(batch_number)

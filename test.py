@@ -109,6 +109,8 @@ print(group_list)
 
 print("-- type_list --")
 print(type_list)
+
+
             # # Obtain results for each group and type
             # for question, correct_answer in zip(category_batch, correct_answers):
                 

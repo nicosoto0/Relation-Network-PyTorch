@@ -29,14 +29,24 @@ def get_answer(output, target, vocabulary=None, return_answer=False):
         idx = torch.argmax(output, dim=1)
         correct = (idx == target).sum().item()
         correct /= float(output.size(0))
-
+            
         if vocabulary is not None:
-            answer = [vocabulary[id.item()] for id in idx]
+            # print("elementos en vocabulary: ", len(vocabulary))
+            # for id in idx:
+            #     print(f"id: {id}")
+            #     print(f"id item: {id.item()}")
+            answer = [vocabulary[id.item()] if id.item() < len(vocabulary) else "-" for id in idx]
+
+            # answer = []
+            # for id in idx:
+            #     if id.item() < len(vocabulary)
+            #     answer.append
         else:
             answer = None
 
         if return_answer:
             return correct, answer, (idx == target).tolist()
+
         return correct, answer, []
     
 
