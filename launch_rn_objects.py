@@ -4,6 +4,7 @@ from src.models.LSTM import LSTM
 import torch
 import argparse
 import os
+import json
 from itertools import chain
 from src.utils import files_names_test_en, files_names_train_en, files_names_test_en_valid, files_names_train_en_valid, files_names_val_en_valid
 from task.gqa_task.rn.train_objects import test, train
@@ -89,24 +90,48 @@ device = torch.device(mode)
 cd = os.path.dirname(os.path.abspath(__file__))
 
 # Set Paths
-train_questions_path = "./data/miniGQA/training_question_ids.json"
-test_questions_path = "./data/miniGQA/testing_question_ids.json"
-validation_questions_path = "./data/miniGQA/new_valid_filtered.json"
-features_path = "./data/miniGQA/miniGQA_objectFeatures.h5"
 
 # -- MiniGQA v1.0 --
+# train_questions_path = "./data/miniGQA/training_question_ids.json"
+# test_questions_path = "./data/miniGQA/testing_question_ids.json"
+# validation_questions_path = "./data/miniGQA/new_valid_filtered.json"
+# features_path = "./data/miniGQA/miniGQA_objectFeatures.h5"
 #features_path = "./data/miniGQA/miniGQA_objectFeatures.h5"
 #questions_dictionary_path = "./data/miniGQA/questions_dictionary.json"
 #answers_dictionary_path = "./data/miniGQA/answers_dictionary.json"
 
 # -- MiniGQA 2.0 ---
+# features_path = "./data/GQA_objects_features/"
+# questions_dictionary_path = "./data/miniGQA/miniGQA2_question_vocabulary.json"
+# answers_dictionary_path = "./data/miniGQA/miniGQA2_answer_vocabulary.json"
+
+# -- MiniGQA 3.0 ---
+train_questions_path = "./data/miniGQA3/miniGQA3_question_train.json"
+test_questions_path = "./data/miniGQA3/miniGQA3_question_test.json"
+validation_questions_path = "./data/miniGQA3/miniGQA3_question_val.json"
 features_path = "./data/GQA_objects_features/"
-questions_dictionary_path = "./data/miniGQA/miniGQA2_question_vocabulary.json"
-answers_dictionary_path = "./data/miniGQA/miniGQA2_answer_vocabulary.json"
+questions_dictionary_path = "./data/miniGQA3/miniGQA3_question_vocabulary.json"
+answers_dictionary_path = "./data/miniGQA3/miniGQA3_answer_vocabulary.json"
 
 execution_state_path = "./saved_models/last_execution_state.json"
-# TODO: update for miniGQA2 or get from question
-MAX_QUESTION_LENGTH = 136
+
+#Calculate longest question
+with open(train_questions_path, "r") as f:
+    questions = json.load(f)
+with open(test_questions_path, "r") as f:
+    questions.update(json.load(f))
+with open(validation_questions_path, "r") as f:
+    questions.update(json.load(f))
+
+longest = 0
+for quest_id in questions:
+    quest = questions[quest_id]
+    quest_len = len(quest["question"].split(" "))
+    longest = max(longest, quest_len)
+del questions
+
+MAX_QUESTION_LENGTH = longest + 5 #136
+print(f"max question length: {MAX_QUESTION_LENGTH}")
 BATCH_SIZE = 64
 isObjectFeatures = True
 

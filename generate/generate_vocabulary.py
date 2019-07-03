@@ -17,9 +17,9 @@ def generate_vocabulary(training_questions_path, testing_questions_path, validat
     NOTE: Se espera que los paths (inputs y output) sean jsons
     """
     
-    assert mode == "question" or mode == "answer", "Mode must be either 'question' or 'asnwer'"
+    assert mode == "question" or mode == "answer", "Mode must be either 'question' or 'answer'"
     
-    question_mode = True if "question" else False
+    question_mode = "question"==mode
     print(f"Generating {mode} dictionary")
     dictionary_set = set()
     
@@ -36,10 +36,13 @@ def generate_vocabulary(training_questions_path, testing_questions_path, validat
         pbar = tqdm(total=len(question_ids))
         for question_id in question_ids:
             content = questions[question_id][mode]
+            # words = content.split(" ")
             words = tokenizer.tokenize(content)
             if question_mode:
                 for word in words:
                     dictionary_set.add(word)
+                    # print(dictionary_set)
+                    # input()
             else:
                 dictionary_set.add(content)
             pbar.update()
@@ -61,12 +64,12 @@ def load_dict(dict_path):
     return dictionary
 
 if __name__ == "__main__":
-    training_questions_path = "data/miniGQA2/miniGQA2_question_train.json"
-    testing_questions_path = "data/miniGQA2/miniGQA2_question_test.json"
-    validation_questions_path = "data/miniGQA2/miniGQA2_question_val.json"
+    training_questions_path = "data/miniGQA3/miniGQA3_question_train.json"
+    testing_questions_path = "data/miniGQA3/miniGQA3_question_test.json"
+    validation_questions_path = "data/miniGQA3/miniGQA3_question_val.json"
     
-    output_question = "data/miniGQA2/miniGQA2_question_vocabulary.json"
-    output_answer = "data/miniGQA2/miniGQA2_answer_vocabulary.json"
+    output_question = "data/miniGQA3/miniGQA3_question_vocabulary.json"
+    output_answer = "data/miniGQA3/miniGQA3_answer_vocabulary.json"
     
-    generate_vocabulary(training_questions_path, testing_questions_path, validation_questions_path, output_answer, question_mode=False)
-    generate_vocabulary(training_questions_path, testing_questions_path, validation_questions_path, output_question, question_mode=True)
+    generate_vocabulary(training_questions_path, testing_questions_path, validation_questions_path, output_answer, mode="answer")
+    generate_vocabulary(training_questions_path, testing_questions_path, validation_questions_path, output_question, mode="question")

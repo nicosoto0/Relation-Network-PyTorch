@@ -177,7 +177,6 @@ def train(train_questions_path, validation_questions_path, features_path, BATCH_
         batch = get_batch(train_questions_path, features_path,  BATCH_SIZE,
                           device, isObjectFeatures, OBJECT_TRIM=OBJECT_TRIM)
         while dataset_size_remain > 0:
-            break  # TODO
             if dataset_size_remain < BATCH_SIZE:
                 break
             dataset_size_remain -= BATCH_SIZE
@@ -231,7 +230,6 @@ def train(train_questions_path, validation_questions_path, features_path, BATCH_
 
             train_losses.append(loss.item())
             pbar.update()
-            break #TODO
             
         pbar.close()
         print("((i+1) %  print_every): ", ((i+1) %  print_every))
@@ -463,30 +461,31 @@ def validation(dataset_questions_path, features_path, BATCH_SIZE,
 
             loss = criterion(rr, answer_ground_truth_batch)
             val_loss += loss.item()
-
-            correct, answers, answers_list = get_answer(
-                rr, answer_ground_truth_batch, answers_dictionary, return_answer=True)
+            
+            #convert answer tokens to strings
             # correct, answers, answers_list = get_answer(
-            #     rr, answer_ground_truth_batch, return_answer=True)
+            #     rr, answer_ground_truth_batch, answers_dictionary, return_answer=True)
+            correct, _ , answers_list = get_answer(
+                rr, answer_ground_truth_batch, return_answer=True)
             val_accuracy += correct
 
-            for idx, (quest, ans, ground_truth) in enumerate(zip(question_batch, answers, answer_ground_truth_batch)):
-                gt_string = answers_dictionary[ground_truth]
+            #Visualize answers
+            # for idx, (quest, ans, ground_truth) in enumerate(zip(question_batch, answers, answer_ground_truth_batch)):
+            #     gt_string = answers_dictionary[ground_truth]
 
-                quest_string = " ".join(
-                    [questions_dictionary[word] for word in quest if word < len(questions_dictionary)])
-                print("\n-----------")
-                print(f"question: {quest_string}")
-                print(f"answer: {ans}")
-                print(f"ground truth: {gt_string}")
+            #     quest_string = " ".join(
+            #         [questions_dictionary[word] for word in quest if word < len(questions_dictionary)])
+            #     print("\n-----------")
+            #     print(f"question: {quest_string}")
+            #     print(f"answer: {ans}")
+            #     print(f"ground truth: {gt_string}")
 
-                print(f"Was correct (really): {ans==gt_string}")
-                print(
-                    f"Was correct (code): {bool(answers_list[idx])}")
-                print(f"Contradiction: {bool(answers_list[idx])!=(ans==gt_string)}")
+            #     print(f"Was correct (really): {ans==gt_string}")
+            #     print(
+            #         f"Was correct (code): {bool(answers_list[idx])}")
+            #     print(f"Contradiction: {bool(answers_list[idx])!=(ans==gt_string)}")
             
             batch_number += 1
-            print(batch_number)
             #pbar.update()mn 
 
         #pbar.close()

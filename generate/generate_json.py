@@ -21,19 +21,19 @@ def generate_json_miniGQA(train_fraction=0.7, test_fraction=0.2, val_fraction=0.
     SEED = 1
     random.seed(SEED)
     
-    json_path = "utils/MiniGQA2/jsons"
-    miniGQA2_folder = "data/miniGQA2"
+    json_path = "./utils/MiniGQA2/jsons"
+    miniGQA2_folder = "./data/miniGQA3"
     
-    train_path = "miniGQA2_question_train.json"
-    test_path     = "miniGQA2_question_test.json"
-    val_path      = "miniGQA2_question_val.json"
+    train_path = "miniGQA3_question_train.json"
+    test_path     = "miniGQA3_question_test.json"
+    val_path      = "miniGQA3_question_val.json"
     
     if not exists(miniGQA2_folder):
         mkdir(miniGQA2_folder)
     
     images_from_miniGQA1_filename = "id_images_in_miniGQA_with_scene_graph.json"
     images_from_GQA_filename = "gqa2_patch_image_ids.json"
-    GQA_questions_filepath = "data/GQA/questions1.2"
+    GQA_questions_filepath = "./data/GQA/questions1.2"
     
     print(f"Reading {images_from_miniGQA1_filename}...")
     with open(f"{json_path}/{images_from_miniGQA1_filename}") as f:
@@ -77,7 +77,7 @@ def generate_json_miniGQA(train_fraction=0.7, test_fraction=0.2, val_fraction=0.
     del miniGQA
     del from_GQA
     
-    for source in ["val_all_questions.json", "test_all_questions.json",
+    for source in ["val_all_questions.json",
                    "train_all_questions/train_all_questions_0.json",
                    "train_all_questions/train_all_questions_1.json",
                    "train_all_questions/train_all_questions_2.json",
@@ -102,8 +102,13 @@ def generate_json_miniGQA(train_fraction=0.7, test_fraction=0.2, val_fraction=0.
             skip = False
             for fil in GQA_filter:
                 for case in GQA_filter[fil]:
-                    if question[fil] == case:
-                        skip  = True
+                    try:
+                        if question[fil] == case:
+                            skip  = True
+                            break
+                    except:
+                        print("error")
+                        skip = True
                         break
             
             if skip:
