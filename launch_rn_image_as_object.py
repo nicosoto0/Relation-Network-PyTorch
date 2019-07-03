@@ -15,9 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--epochs', type=int, default=10, help='epochs to train.')
 
 # g-mpl arguments
-# parser.add_argument('--object_dim', type=int, default=2048,
-#                     help='number of features of each object')
-parser.add_argument('--object_dim', type=int, default=1000,
+parser.add_argument('--object_dim', type=int, default=2048,
                     help='number of features of each object')
 parser.add_argument('--hidden_dims_g', nargs='+', type=int,
                     default=[512, 512, 512], help='layers of relation function g')
@@ -89,26 +87,21 @@ device = torch.device(mode)
 cd = os.path.dirname(os.path.abspath(__file__))
 
 # Set Paths
+# TODO: image_as_object en miniGQA o miniGQA2?
 train_questions_path = "./data/miniGQA/training_question_ids.json"
 test_questions_path = "./data/miniGQA/testing_question_ids.json"
 validation_questions_path = "./data/miniGQA/new_valid_filtered.json"
 features_path = "./data/miniGQA/miniGQA_objectFeatures.h5"
+questions_dictionary_path = "./data/miniGQA/questions_dictionary.json"
+answers_dictionary_path = "./data/miniGQA/answers_dictionary.json"
 
-# -- MiniGQA v1.0 --
-#features_path = "./data/miniGQA/miniGQA_objectFeatures.h5"
-#questions_dictionary_path = "./data/miniGQA/questions_dictionary.json"
-#answers_dictionary_path = "./data/miniGQA/answers_dictionary.json"
-
-# -- MiniGQA 2.0 ---
-features_path = "./data/GQA_objects_features/"
-questions_dictionary_path = "./data/miniGQA/miniGQA2_question_vocabulary.json"
-answers_dictionary_path = "./data/miniGQA/miniGQA2_answer_vocabulary.json"
-
+#TODO: cambiar para no overwrite?
 execution_state_path = "./saved_models/last_execution_state.json"
-# TODO: update for miniGQA2 or get from question
+# TODO: update for miniGQA2 or get from question 
 MAX_QUESTION_LENGTH = 136
 BATCH_SIZE = 64
 isObjectFeatures = True
+OBJECT_TRIM = 1 # One image = one object
 
 # torch.set_default_tensor_type(torch.FloatTensor)
 
@@ -147,7 +140,8 @@ if args.epochs > 0:
     print("Start training")
     try:
         avg_train_losses, avg_train_accuracies, val_losses, val_accuracies = train(train_questions_path, validation_questions_path, features_path, BATCH_SIZE, args.epochs,
-                                                                                   lstm, rn, criterion, optimizer, args.no_save, questions_dictionary, answers_dictionary, device, MAX_QUESTION_LENGTH, isObjectFeatures, args.print_every)
+                                                                                   lstm, rn, criterion, optimizer, args.no_save, questions_dictionary, answers_dictionary,
+                                                                                   device, MAX_QUESTION_LENGTH, isObjectFeatures, args.print_every, OBJECT_TRIM)
     except Exception as e:
         emergency_save([(lstm, names_models[0]), (rn, names_models[1])])
         print(traceback.format_exc())
@@ -157,7 +151,8 @@ if args.epochs > 0:
 print("Testing...")
 try:
     avg_test_loss, avg_test_accuracy = test(test_questions_path, features_path, BATCH_SIZE, lstm, rn,
-                                            criterion, questions_dictionary, answers_dictionary, device, MAX_QUESTION_LENGTH, isObjectFeatures)
+                                            criterion, questions_dictionary, answers_dictionary, device,
+                                            MAX_QUESTION_LENGTH, isObjectFeatures, OBJECT_TRIM)
     print("Test accuracy: ", avg_test_accuracy)
     print("Test loss: ", avg_test_loss)
 except Exception as e:
