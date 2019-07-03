@@ -6,11 +6,13 @@ from os import mkdir
 from tqdm import tqdm 
 
 
-def generate_json_miniGQA(train_fraction=0.7, test_fraction=0.2, val_fraction=0.1, include=["train","test","val"]):
+def generate_json_miniGQA(train_fraction=0.7, test_fraction=0.2, val_fraction=0.1,
+                          include=["train","test","val"], GQA_filter={"answer":["yes", "no"]}):
     """
     Argumentos:
         * fractions: fracciones de train, test y val. Deben sumar 1, aunque val se deduce
         * include: qué jsons generar. Útil cuando hay problemas de memoria.
+        * GQA_filter: diccionario con qué se quiere filtrar y en qué caso(s)
     """
     
     s = train_fraction + test_fraction + val_fraction
@@ -94,7 +96,18 @@ def generate_json_miniGQA(train_fraction=0.7, test_fraction=0.2, val_fraction=0.
         print(f"processing {source}...")
         pbar = tqdm(total=len(GQA))
         for question_id in GQA:
-            image_id = GQA[question_id]["imageId"]
+            question = GQA[question_id]
+            image_id = question["imageId"]
+            
+            skip = False
+            for fil in GQA_filter:
+                for case in GQA_filter[fil]:
+                    if question[fil] == case:
+                        skip  = True
+                        break
+            
+            if skip:
+                continue
     
             for miniGQA_ids, from_GQA_ids, miniGQA2 in zip(miniGQAs, from_GQAs, miniGQA2s):
                 
@@ -102,9 +115,7 @@ def generate_json_miniGQA(train_fraction=0.7, test_fraction=0.2, val_fraction=0.
                         (True, miniGQA_ids),
                         (False, from_GQA_ids)]:
                     
-                        if image_id in ids:
-                            question = GQA[question_id]
-                        
+                        if image_id in ids:            
                             miniGQA2[question_id] = {"question":   question["question"],
                                                     "answer":      question["answer"],
                                                     "imageId":     question["imageId"],
