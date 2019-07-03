@@ -24,6 +24,7 @@ def generate_json_miniGQA(train_fraction=0.7, test_fraction=0.2, val_fraction=0.
     json_path = "utils/MiniGQA2/jsons"
     miniGQA2_folder = "data/miniGQA2"
     
+    # Output path
     train_path = "miniGQA2_question_train.json"
     test_path     = "miniGQA2_question_test.json"
     val_path      = "miniGQA2_question_val.json"

@@ -1,4 +1,4 @@
-from src.models.RN_image import RelationNetwork
+from src.models.RN_image_for_LSTM import RelationNetwork as core
 from src.nlp_utils import read_babi, vectorize_babi
 from src.models.LSTM import LSTM
 import torch
@@ -6,7 +6,7 @@ import argparse
 import os
 from itertools import chain
 from src.utils import files_names_test_en, files_names_train_en, files_names_test_en_valid, files_names_train_en_valid, files_names_val_en_valid
-from task.gqa_task.rn.train_objects import test, train
+from task.gqa_task.rn.train_objects_lstm import test, train
 import traceback
 from src.utils import saving_path_rn, names_models, load_models, split_train_validation, emergency_save, load_training_state, save_training_state
 from utils.generate_dictionary import generate_questions_dict, generate_answers_dict, load_dict
@@ -90,7 +90,6 @@ cd = os.path.dirname(os.path.abspath(__file__))
 train_questions_path = "./data/miniGQA/training_question_ids.json"
 test_questions_path = "./data/miniGQA/testing_question_ids.json"
 validation_questions_path = "./data/miniGQA/new_valid_filtered.json"
-features_path = "./data/miniGQA/miniGQA_objectFeatures.h5"
 questions_dictionary_path = "./data/miniGQA/questions_dictionary.json"
 answers_dictionary_path = "./data/miniGQA/answers_dictionary.json"
 
@@ -111,16 +110,15 @@ else:
     questions_dictionary = load_dict(questions_dictionary_path)
     answers_dictionary = load_dict(answers_dictionary_path)
 questions_dict_size = len(questions_dictionary)
+answers_dict_size = len(questions_dictionary)
 print(f"Questions dictionary size: {questions_dict_size}")
 print(f"Answers dictionary size: {len(answers_dictionary)}")
 
-
 lstm = LSTM(args.hidden_dim_lstm, BATCH_SIZE, questions_dict_size,
             args.emb_dim, args.lstm_layers, device).to(device)
-rn = RelationNetwork(args.object_dim, args.hidden_dim_lstm, args.hidden_dims_g, args.output_dim_g, args.dropouts_g,
-                     args.drop_prob_g, args.hidden_dims_f, questions_dict_size, args.dropouts_f, args.drop_prob_f, BATCH_SIZE, device).to(device)
+rn = core(args.hidden_dim_lstm, args.hidden_dims_g, args.output_dim_g, args.dropouts_g,
+          args.drop_prob_g, args.hidden_dims_f, answers_dict_size, args.dropouts_f, args.drop_prob_f, BATCH_SIZE, device).to(device)
 print("Modelos definidos.")
-
 
 # past_lists = ([], [], [], [])
 if args.load:
@@ -136,7 +134,7 @@ criterion = torch.nn.CrossEntropyLoss(reduction='mean')
 if args.epochs > 0:
     print("Start training")
     try:
-        avg_train_losses, avg_train_accuracies, val_losses, val_accuracies = train(train_questions_path, validation_questions_path, features_path, BATCH_SIZE, args.epochs,
+        avg_train_losses, avg_train_accuracies, val_losses, val_accuracies = train(train_questions_path, validation_questions_path, BATCH_SIZE, args.epochs,
                                                                                    lstm, rn, criterion, optimizer, args.no_save, questions_dictionary, answers_dictionary, device, MAX_QUESTION_LENGTH, isObjectFeatures, args.print_every)
     except Exception as e:
         emergency_save([(lstm, names_models[0]), (rn, names_models[1])])
@@ -146,7 +144,7 @@ if args.epochs > 0:
 
 print("Testing...")
 try:
-    avg_test_loss, avg_test_accuracy = test(test_questions_path, features_path, BATCH_SIZE, lstm, rn,
+    avg_test_loss, avg_test_accuracy = test(test_questions_path, BATCH_SIZE, lstm, rn,
                                             criterion, questions_dictionary, answers_dictionary, device, MAX_QUESTION_LENGTH, isObjectFeatures)
     print("Test accuracy: ", avg_test_accuracy)
     print("Test loss: ", avg_test_loss)
