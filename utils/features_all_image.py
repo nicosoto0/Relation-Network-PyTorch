@@ -31,13 +31,12 @@ if __name__ == "__main__":
 
     # MiniGQA patch data
     images_miniGQA_path = "C:/Users/benjavides/Desktop/miniGQA2/"
-    id_images_in_miniGQA_path = "H:/MiniGQA2/gqa2_patch_image_ids.json"
-
+    id_images_in_miniGQA_path = "H:/MiniGQA2/gqa2_image_ids.json"
 
     train_graph_path = "./data/scene_graph/train_sceneGraphs.json"
     val_graph_path = "./data/scene_graph/val_sceneGraphs.json"
 
-    save_features_path = "./data/GQA_objects_features/"
+    save_features_path = "./data/GQA_full_image_features/"
 
     resnet = models.resnet50().to(device)
     
@@ -94,37 +93,23 @@ if __name__ == "__main__":
         image = io.imread(img_name)
         if len(image.shape) == 2:
             image = gray2rgb(image)
-
-        all_objects = torch.zeros((1, 1000), device=device)
-        for bb_number in scene['objects']:
-            bb = scene['objects'][bb_number]
-            #print((bb['y'], bb['h']), (bb['x'], bb['w']), (image.shape[0], image.shape[1]))
+           
+        img_resize = transform.resize(image, (224, 224, 3), anti_aliasing=False)
             
-            #------
-            try:
-                object_img = crop(image, ((bb['y'], image.shape[0]-(bb['y']+bb['h'])), (bb['x'], image.shape[1]-(bb['x']+bb['w'])), (0,0) ), copy=False)
-                object_resize = transform.resize(object_img, (224, 224, 3), anti_aliasing=False)
-                
-                object_tensor = torch.from_numpy(np.array(object_resize)).float().to(device)
-                object_tensor = object_tensor.permute(2,0,1)
-                object_tensor = torch.unsqueeze(object_tensor, 0)
-                #print(f"object_tensor.size() -> {object_tensor.size()}")
-
-                object_features = resnet(object_tensor)
-                #print(f"object_features.size() -> {object_features.size()}")
-
-                all_objects = torch.cat((all_objects, object_features))
-                #print(f"all_objects.size() -> {all_objects.size()}")
-            #----
-
-            except:
-                pass
+        img_tensor = torch.from_numpy(np.array(img_resize)).float().to(device)
+        img_tensor = img_tensor.permute(2, 0, 1)
+        img_tensor = torch.unsqueeze(img_tensor, 0)
+        #print(f"object_tensor.size() -> {object_tensor.size()}")
         
-        # --- Remove first zero ovject ---
-        all_objects = all_objects[1:, :]
-        #print(f"all_objects.size() -> {all_objects.size()}")
+        object_features = resnet(img_tensor)
+        #print(f"object_features.size() -> {object_features.size()}")
 
-        torch.save(all_objects, save_features_path + str(image_id) + '.pt')
+        copy_tensor = object_features.clone()
+        doble_object_features = torch.cat((object_features, copy_tensor))
+        #print(f"all_objects.size() -> {doble_object_features.size()}")
+
+        torch.save(doble_object_features,
+                   save_features_path + str(image_id) + '.pt')
 
         # --- Load tensor example ---
         #objects_features2 = torch.load( save_features_path + str(image_id) + '.pt')

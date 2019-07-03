@@ -15,7 +15,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--epochs', type=int, default=10, help='epochs to train.')
 
 # g-mpl arguments
-parser.add_argument('--object_dim', type=int, default=2048,
+# parser.add_argument('--object_dim', type=int, default=2048,
+#                     help='number of features of each object')
+parser.add_argument('--object_dim', type=int, default=1000,
                     help='number of features of each object')
 parser.add_argument('--hidden_dims_g', nargs='+', type=int,
                     default=[512, 512, 512], help='layers of relation function g')
@@ -91,8 +93,16 @@ train_questions_path = "./data/miniGQA/training_question_ids.json"
 test_questions_path = "./data/miniGQA/testing_question_ids.json"
 validation_questions_path = "./data/miniGQA/new_valid_filtered.json"
 features_path = "./data/miniGQA/miniGQA_objectFeatures.h5"
-questions_dictionary_path = "./data/miniGQA/questions_dictionary.json"
-answers_dictionary_path = "./data/miniGQA/answers_dictionary.json"
+
+# -- MiniGQA v1.0 --
+#features_path = "./data/miniGQA/miniGQA_objectFeatures.h5"
+#questions_dictionary_path = "./data/miniGQA/questions_dictionary.json"
+#answers_dictionary_path = "./data/miniGQA/answers_dictionary.json"
+
+# -- MiniGQA 2.0 ---
+features_path = "./data/GQA_objects_features/"
+questions_dictionary_path = "./data/miniGQA/miniGQA2_question_vocabulary.json"
+answers_dictionary_path = "./data/miniGQA/miniGQA2_answer_vocabulary.json"
 
 execution_state_path = "./saved_models/last_execution_state.json"
 MAX_QUESTION_LENGTH = 136

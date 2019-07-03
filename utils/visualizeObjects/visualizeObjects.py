@@ -35,9 +35,9 @@ def convert_points_to_box(points, color, alpha):
 
 
 if __name__ == "__main__":
-    images_path = "./images"
-    features_filepath = "./object_features"
-    gqa_object_info_path = "./object_features/gqa_objects_info.json"
+    images_path = "G:/Archivos/Downloads/AI/Relation Net No Git/utils/visualizeObjects/images"
+    features_filepath = "G:/Archivos/Downloads/AI/Relation Net No Git/utils/visualizeObjects/object_features"
+    gqa_object_info_path = "G:/Archivos/Downloads/AI/Relation Net No Git/utils/visualizeObjects/object_features/gqa_objects_info.json"
     id_images_in_miniGQA_path = "./id_images_in_miniGQA.json"
     MAX_OBJECTS = 5
 
@@ -59,6 +59,7 @@ if __name__ == "__main__":
         ax1.autoscale(enable=True)
         ax1.title.set_text(f'{MAX_OBJECTS} objects')
         ax1.set_axis_off()
+        print(f"Mostrando imagen: {image_id}.jpg")
         for idx, bbox in enumerate(bboxes[:MAX_OBJECTS]):
             # print(f"bbox: {bbox}")
             color = numpy.random.rand(3)

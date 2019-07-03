@@ -31,6 +31,11 @@ def load_dict_from_h5(file_path, h5_path):
     dictionary = h5todict(file_path, h5_path)
     return dictionary
 
+def load_features_from_pt_file(features_path, image_id):
+    feature_file_path = features_path + image_id + ".pt"
+    feature = torch.load(feature_file_path)
+    return feature
+
 def get_size(dataset_questions_path):
     with open(dataset_questions_path, "r") as miniGQA_val:
         miniGQA = json.load(miniGQA_val)
@@ -54,7 +59,12 @@ def get_batch(questions_path, features_path, batch_size, device, isObjectFeature
     
     if isObjectFeatures:
         #add tensor of zeros of size OBJECT_TRIM*2048 to list
-        aux_tensor = torch.zeros((OBJECT_TRIM, 2048), device=device)
+        
+        # -- MiniGQA 1.0 --
+        #aux_tensor = torch.zeros((OBJECT_TRIM, 2048), device=device)
+        
+        # -- MiniGQA 2.0, objects implementation ---
+        aux_tensor = torch.zeros((OBJECT_TRIM, 1000), device=device)
         object_features_batch.append(aux_tensor)
     
     for question_id in questions_ids:
@@ -65,8 +75,11 @@ def get_batch(questions_path, features_path, batch_size, device, isObjectFeature
             category = {"group": questions[question_id]["group"],
                         "types":questions[question_id]["types"]}
         
-        features_dict = load_dict_from_h5(features_path, imageId)
-        features = features_dict["features"] #features_h5[imageId]["features"]
+        #Features guardadas en h5
+        # features_dict = load_dict_from_h5(features_path, imageId)
+        # features = features_dict["features"] #features_h5[imageId]["features"]
+        #Features guardadas en .pt
+        features = load_features_from_pt_file(features_path, imageId)
         #objectNum = features_dict["objectNum"]
         # features = add_padding_features(features, objectNum)
 
@@ -74,6 +87,7 @@ def get_batch(questions_path, features_path, batch_size, device, isObjectFeature
         if isObjectFeatures:
             if len(features)>OBJECT_TRIM:
                 features= features[:OBJECT_TRIM]
+            
         features = torch.tensor(features, device=device) # dtype=torch.long
         if not isObjectFeatures:
             features = features.view(-1,49).transpose(0,1)
@@ -115,7 +129,8 @@ def get_batch(questions_path, features_path, batch_size, device, isObjectFeature
             category_batch = []
             #objectsNum_batch = []
             if isObjectFeatures:
-                aux_tensor = torch.zeros((OBJECT_TRIM, 2048), device=device)
+                # aux_tensor = torch.zeros((OBJECT_TRIM, 2048), device=device)
+                aux_tensor = torch.zeros((OBJECT_TRIM, 1000), device=device)
                 object_features_batch.append(aux_tensor)
 
 #Manejo ctrl + c

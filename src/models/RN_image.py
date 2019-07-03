@@ -75,6 +75,14 @@ class RelationNetwork(nn.Module):
         # 4352 = 2048+2048+256
         # print(f"pair_concat.size() = {pair_concat.size()}")
 
+
+        # MiniGQA2.0, objects scene
+        #torch.Size([64, 576, 2256])
+        # 576 = 24*24*1
+        # 2256 = 1000+1000+256
+        # print(f"pair_concat.size() = {pair_concat.size()}")
+
+
         relations = self.g(pair_concat)
 
         embedding = torch.sum(relations, dim=1) # (output_dim_g)

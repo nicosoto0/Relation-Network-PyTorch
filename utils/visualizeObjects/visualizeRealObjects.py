@@ -16,7 +16,7 @@ def get_bboxes(image_index, scene_graphs):
     bboxes = []
     names = []
     for object_id in scene_graphs['objects']:
-        print(f"object: {scene_graphs['objects'][object_id]}")
+        # print(f"object: {scene_graphs['objects'][object_id]}")
         x = scene_graphs['objects'][object_id]["x"]
         y = scene_graphs['objects'][object_id]["y"]
         w = scene_graphs['objects'][object_id]["w"]
@@ -39,13 +39,13 @@ def convert_points_to_box(points, color, alpha):
 
 
 if __name__ == "__main__":
-    images_path = "./images"
-    scene_graphs_train_path = "./real_objects/train_sceneGraphs.json"
-    scene_graphs_val_path = "./real_objects/val_sceneGraphs.json"
-    id_images_in_miniGQA_path = "./id_images_in_miniGQA.json"
+    images_path = "C:/Users/benjavides/Desktop/miniGQA2"
+    scene_graphs_train_path = "C:/Users/benjavides/Desktop/Relation-Network-PyTorch/data/scene_graph/train_sceneGraphs.json"
+    scene_graphs_val_path = "C:/Users/benjavides/Desktop/Relation-Network-PyTorch/data/scene_graph/val_sceneGraphs.json"
+    id_images_in_miniGQA2_path = "./gqa2_image_ids.json"
     MAX_OBJECTS = 24
 
-    with open(id_images_in_miniGQA_path, "r") as f:
+    with open(id_images_in_miniGQA2_path, "r") as f:
         id_images_in_miniGQA = json.load(f)
 
     with open(scene_graphs_train_path, "r") as f:
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     shuffle(id_images_in_miniGQA)
 
-    for image_id in id_images_in_miniGQA[:1]:
+    for image_id in id_images_in_miniGQA:
         bboxes, names = get_bboxes(image_id, scene_graphs)
         # print(f"bboxes: {bboxes}")
         image = io.imread(os.path.join(images_path, image_id + ".jpg"))
@@ -65,10 +65,12 @@ if __name__ == "__main__":
         ax1 = plt.subplot(121)
         io.imshow(image)
         ax1.autoscale(enable=True)
-        ax1.title.set_text(f'{MAX_OBJECTS} objects')
         ax1.set_axis_off()
+        print(f"Mostrando imagen: {image_id}.jpg")
         for idx, bbox in enumerate(bboxes[:MAX_OBJECTS]):
             # print(f"bbox: {bbox}")
+            ax1.title.set_text(f'{min(len(bboxes), MAX_OBJECTS)} objects')
+            # fig.suptitle(f'{image_id}.jpg', fontsize=16)
             color = numpy.random.rand(3)
             box, text_pos = convert_points_to_box(
                 bbox, color, .4)
