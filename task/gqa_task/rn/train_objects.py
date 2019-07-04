@@ -78,14 +78,13 @@ def get_batch(questions_path, features_path, batch_size,device,
                         "types":questions[question_id]["types"]}
         
         #Features guardadas en h5
-        # features_dict = load_dict_from_h5(features_path, imageId)
-        # features = features_dict["features"] #features_h5[imageId]["features"]
+        features_dict = load_dict_from_h5(features_path, imageId)
+        features = features_dict["features"] #features_h5[imageId]["features"]
+        
         #Features guardadas en .pt
-        features = load_features_from_pt_file(features_path, imageId)
+        # features = load_features_from_pt_file(features_path, imageId)
+        
         #objectNum = features_dict["objectNum"]
-        # features = add_padding_features(features, objectNum)
-
-        #features = torch.FloatTensor(features, device=device).long()
         if isObjectFeatures:
             if len(features)>OBJECT_TRIM:
                 features= features[:OBJECT_TRIM]
@@ -155,12 +154,12 @@ def train(train_questions_path, validation_questions_path, features_path, BATCH_
     lstm_model = lstm
     win32api.SetConsoleCtrlHandler(signalHandler, 1)
 
-    avg_train_accuracies = [999]  # TODO
-    train_accuracies = [999]# TODO
-    avg_train_losses = [999]# TODO
-    train_losses = [999]# TODO
+    avg_train_accuracies = []
+    train_accuracies = []
+    avg_train_losses = []
+    train_losses = []
 
-    val_accuracies = [999]  # TODO
+    val_accuracies = []  
     val_losses = [1000.]  
     best_val = val_losses[0]
     
@@ -230,6 +229,7 @@ def train(train_questions_path, validation_questions_path, features_path, BATCH_
 
             train_losses.append(loss.item())
             pbar.update()
+            # break #TODO
             
         pbar.close()
         print("((i+1) %  print_every): ", ((i+1) %  print_every))

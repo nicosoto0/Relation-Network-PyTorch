@@ -154,7 +154,7 @@ print(f"Answers dictionary size: {len(answers_dictionary)}")
 lstm = LSTM(args.hidden_dim_lstm, BATCH_SIZE, questions_dict_size,
             args.emb_dim, args.lstm_layers, device).to(device)
 rn = RelationNetwork(args.object_dim, args.hidden_dim_lstm, args.hidden_dims_g, args.output_dim_g, args.dropouts_g,
-                     args.drop_prob_g, args.hidden_dims_f, questions_dict_size, args.dropouts_f, args.drop_prob_f, BATCH_SIZE, device).to(device)
+                     args.drop_prob_g, args.hidden_dims_f, answers_dict_size, args.dropouts_f, args.drop_prob_f, BATCH_SIZE, device).to(device)
 print("Modelos definidos.")
 
 

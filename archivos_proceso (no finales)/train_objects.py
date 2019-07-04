@@ -96,7 +96,6 @@ def get_validation_batch(validation_questions_path, features_path, batch_size):
                 objectsNum_batch = []
 
 def get_test_batch(test_questions_path, features_path, batch_size):
-    #TODO
     testing_questions_paths = load_dict(test_questions_path, "questions_id")
     i = 0
     question_batch = []

@@ -10,7 +10,7 @@ from src.utils import saving_path_rn, names_models, load_models, emergency_save
 from task.gqa_task.rn.train_objects import train, test
 import traceback
 from utils.generate_dictionary import generate_questions_dict, generate_answers_dict, load_dict
-
+import json
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--epochs', type=int, default=10, help='epochs to train.')
@@ -87,13 +87,36 @@ device = torch.device(mode)
 cd = os.path.dirname(os.path.abspath(__file__))
 
 # Set Paths
-train_questions_path = "./data/miniGQA/training_question_ids.json"
-test_questions_path = "./data/miniGQA/testing_question_ids.json"
-validation_questions_path = "./data/miniGQA/new_valid_filtered.json"
-features_path = "./data/miniGQA/miniGQA_imageFeatures.h5"
-questions_dictionary_path = "./data/miniGQA/questions_dictionary.json"
-answers_dictionary_path = "./data/miniGQA/answers_dictionary.json"
-MAX_QUESTION_LENGTH = 136
+#MiniGQA 1.0
+# train_questions_path = "./data/miniGQA/training_question_ids.json"
+# test_questions_path = "./data/miniGQA/testing_question_ids.json"
+# validation_questions_path = "./data/miniGQA/new_valid_filtered.json"
+# questions_dictionary_path = "./data/miniGQA/questions_dictionary.json"
+# answers_dictionary_path = "./data/miniGQA/answers_dictionary.json"
+
+# -- MiniGQA 3.0 ---
+train_questions_path = "./data/miniGQA3/miniGQA3_question_train.json"
+test_questions_path = "./data/miniGQA3/miniGQA3_question_test.json"
+validation_questions_path = "./data/miniGQA3/miniGQA3_question_val.json"
+features_path = "./data/miniGQA3/miniGQA3_imageFeatures.h5"
+questions_dictionary_path = "./data/miniGQA3/miniGQA3_question_vocabulary.json"
+answers_dictionary_path = "./data/miniGQA3/miniGQA3_answer_vocabulary.json"
+
+#Calculate longest question
+with open(train_questions_path, "r") as f:
+    questions = json.load(f)
+with open(test_questions_path, "r") as f:
+    questions.update(json.load(f))
+with open(validation_questions_path, "r") as f:
+    questions.update(json.load(f))
+longest = 0
+for quest_id in questions:
+    quest = questions[quest_id]
+    quest_len = len(quest["question"].split(" "))
+    longest = max(longest, quest_len)
+del questions
+
+MAX_QUESTION_LENGTH = longest + 5  # 136
 BATCH_SIZE = 16
 isObjectFeatures = False
 
@@ -108,14 +131,15 @@ else:
     questions_dictionary = load_dict(questions_dictionary_path)
     answers_dictionary = load_dict(answers_dictionary_path)
 questions_dict_size = len(questions_dictionary)
+answers_dict_size = len(answers_dictionary)
 print(f"Questions dictionary size: {questions_dict_size}")
-print(f"Answers dictionary size: {len(answers_dictionary)}")
+print(f"Answers dictionary size: {answers_dict_size}")
 
 
 lstm = LSTM(args.hidden_dim_lstm, BATCH_SIZE, questions_dict_size,
             args.emb_dim, args.lstm_layers, device).to(device)
 rn = RelationNetwork(args.object_dim, args.hidden_dim_lstm, args.hidden_dims_g, args.output_dim_g, args.dropouts_g,
-                     args.drop_prob_g, args.hidden_dims_f, questions_dict_size, args.dropouts_f, args.drop_prob_f, BATCH_SIZE, device).to(device)
+                     args.drop_prob_g, args.hidden_dims_f, answers_dict_size, args.dropouts_f, args.drop_prob_f, BATCH_SIZE, device).to(device)
 print("Modelos definidos.")
 
 if args.load:
